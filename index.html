@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortinet Product Matrix</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { color: #c02f2f; margin-bottom: 20px; }
+        
+        /* Search & Tabs */
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
+        .tabs { display: flex; gap: 5px; }
+        button { padding: 10px 20px; border: none; background: #e9ecef; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        button.active { background: #c02f2f; color: white; }
+        
+        /* Table */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background-color: #343a40; color: white; white-space: nowrap; }
+        tr:hover { background-color: #f1f3f5; }
+        
+        /* Responsive Tags */
+        .tag { display: inline-block; background: #e2e6ea; padding: 2px 8px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; color: #495057; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Fortinet Product Explorer</h1>
+    
+    <div class="controls">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('fortigate')">FortiGate</button>
+            <button class="tab-btn" onclick="switchTab('fortimanager')">FortiManager</button>
+            <button class="tab-btn" onclick="switchTab('fortiswitch')">FortiSwitch</button>
+        </div>
+        <input type="text" id="searchBox" placeholder="Search models, speed, or interface..." onkeyup="filterTable()">
+    </div>
+
+    <div class="table-wrapper">
+        <table id="productTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let currentCategory = 'fortigate';
+    let allData = {};
+
+    // Load Data
+    async function loadData() {
+        try {
+            // Fetch the JSON file (must be in same folder)
+            const response = await fetch('data.json');
+            allData = await response.json();
+            renderTable();
+        } catch (error) {
+            console.error("Error loading data:", error);
+            document.querySelector(".container").innerHTML += "<p style='color:red'>Error loading data.json. Make sure you are running this on a web server (or GitHub Pages).</p>";
+        }
+    }
+
+    // Define Columns for each category
+    const columns = {
+        fortigate: [
+            { header: "Model", key: "model" },
+            { header: "Form Factor", key: "form_factor" },
+            { header: "FW Throughput", key: "fw_throughput" },
+            { header: "IPsec VPN", key: "ipsec_vpn" },
+            { header: "Interfaces", key: "interfaces" }
+        ],
+        fortimanager: [
+            { header: "Model", key: "model" },
+            { header: "Max Devices", key: "devices_max" },
+            { header: "Logs/Day", key: "logs_day" },
+            { header: "Storage", key: "storage" }
+        ],
+        fortiswitch: [
+            { header: "Series", key: "series" },
+            { header: "Port Speed", key: "port_speed" },
+            { header: "Uplink", key: "uplink" },
+            { header: "Port Options", key: "options" }
+        ]
+    };
+
+    function switchTab(category) {
+        currentCategory = category;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('searchBox').value = ''; 
+        renderTable();
+    }
+
+    function renderTable() {
+        const data = allData[currentCategory];
+        const cols = columns[currentCategory];
+        const tbody = document.getElementById("tableBody");
+        const thead = document.getElementById("tableHead");
+        const query = document.getElementById("searchBox").value.toLowerCase();
+
+        // Render Header
+        thead.innerHTML = "<tr>" + cols.map(c => `<th>${c.header}</th>`).join("") + "</tr>";
+
+        // Render Body
+        tbody.innerHTML = "";
+        data.forEach(item => {
+            // Search Filter
+            const values = Object.values(item).join(" ").toLowerCase();
+            if (!values.includes(query)) return;
+
+            const row = cols.map(col => `<td>${item[col.key] || '-'}</td>`).join("");
+            tbody.innerHTML += `<tr>${row}</tr>`;
+        });
+    }
+
+    function filterTable() {
+        renderTable();
+    }
+
+    // Initialize
+    loadData();
+</script>
+
+</body>
+</html>
