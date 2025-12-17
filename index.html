@@ -3,131 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fortinet Product & Pricing Explorer</title>
+    <title>Fortinet Product & Ordering Guide</title>
     <style>
         body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #f4f6f8; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { color: #c02f2f; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
-        
-        /* Controls */
-        .controls { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
-        .tabs { display: flex; gap: 8px; }
-        button.tab-btn { padding: 10px 24px; border: 1px solid #c02f2f; background: white; color: #c02f2f; cursor: pointer; border-radius: 4px; font-weight: 600; transition: all 0.2s; }
-        button.tab-btn.active, button.tab-btn:hover { background: #c02f2f; color: white; }
-        input { flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; min-width: 250px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #c02f2f; margin-bottom: 25px; }
 
-        /* Table */
-        .table-wrapper { overflow-x: auto; border: 1px solid #eee; border-radius: 6px; }
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid #dee2e6; vertical-align: middle; }
-        th { background-color: #2c3e50; color: white; font-weight: 600; white-space: nowrap; position: sticky; top: 0; }
-        tr:nth-child(even) { background-color: #f8f9fa; }
-        tr:hover { background-color: #e9ecef; }
-        
-        /* Specific Columns */
-        .price-col { color: #2e7d32; font-weight: bold; font-family: monospace; font-size: 1.1em; }
-        .sku-col { font-family: monospace; color: #555; background: #eee; padding: 4px 8px; border-radius: 4px; font-size: 0.9em; }
-        .desc-cell { font-size: 0.9em; color: #666; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-        .desc-cell:hover { white-space: normal; background: #fffbe6; position: relative; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        /* Search */
+        .controls { margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
 
+        /* Main Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background-color: #343a40; color: white; }
+        tr.main-row:hover { background-color: #f1f3f5; }
+        
+        /* Action Button */
+        .view-btn { background: #c02f2f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+        .view-btn:hover { background: #a02626; }
+
+        /* Expanded Details Area */
+        .details-row { display: none; background-color: #fafafa; }
+        .details-container { padding: 20px; border-left: 4px solid #c02f2f; }
+        
+        /* Detail Sections */
+        h4 { margin: 10px 0 5px 0; color: #555; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.05em; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+        .detail-list { list-style: none; padding: 0; margin: 0; }
+        .detail-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 0.9em; }
+        .detail-item:last-child { border-bottom: none; }
+        .sku { font-family: monospace; font-weight: bold; color: #c02f2f; min-width: 180px; }
+        .desc { color: #666; flex: 1; }
+        
+        /* Badge */
+        .badge { display: inline-block; background: #e9ecef; color: #495057; padding: 2px 6px; border-radius: 4px; font-size: 0.75em; margin-right: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Fortinet Explorer <span style="font-size:0.6em; color:#666; font-weight:normal;">(Specifications + Q4 2025 Pricing)</span></h1>
+    <h1>Fortinet Product Explorer <span style="font-size:0.6em; color:#777; font-weight:normal;">(Hardware, Bundles & Licensing)</span></h1>
     
     <div class="controls">
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('fortigate')">FortiGate</button>
-            <button class="tab-btn" onclick="switchTab('fortimanager')">FortiManager</button>
-            <button class="tab-btn" onclick="switchTab('fortiswitch')">FortiSwitch</button>
-        </div>
-        <input type="text" id="searchBox" placeholder="Type to filter (e.g., '100F', 'Desktop', '$500')..." onkeyup="filterTable()">
+        <input type="text" id="searchBox" placeholder="Search by Model, SKU, or Description..." onkeyup="filterTable()">
     </div>
 
-    <div class="table-wrapper">
-        <table id="productTable">
-            <thead id="tableHead"></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+    <table id="productTable">
+        <thead>
+            <tr>
+                <th>Model</th>
+                <th>Form Factor</th>
+                <th>Throughput (FW)</th>
+                <th>Interfaces</th>
+                <th style="width: 120px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
 </div>
 
 <script>
-    let currentCategory = 'fortigate';
-    let allData = {};
+    let allData = [];
 
     async function loadData() {
         try {
-            const response = await fetch('data.json'); // Ensure data.json is in the same folder
+            const response = await fetch('data.json');
             allData = await response.json();
-            renderTable();
+            renderTable(allData);
         } catch (error) {
             console.error("Error loading data:", error);
-            document.getElementById("tableBody").innerHTML = "<tr><td colspan='6' style='color:red; text-align:center;'>Error loading data.json. Check console for details.</td></tr>";
+            document.getElementById("tableBody").innerHTML = "<tr><td colspan='5' style='text-align:center; color:red;'>Error loading data.json</td></tr>";
         }
     }
 
-    const columns = {
-        fortigate: [
-            { header: "Model", key: "model" },
-            { header: "Hardware SKU", key: "sku", class: "sku-col" },
-            { header: "List Price", key: "price", class: "price-col" },
-            { header: "Description", key: "description", class: "desc-cell" },
-            { header: "Throughput", key: "fw_throughput" },
-            { header: "Interfaces", key: "interfaces" }
-        ],
-        fortimanager: [
-            { header: "Model", key: "model" },
-            { header: "SKU", key: "sku", class: "sku-col" },
-            { header: "Price", key: "price", class: "price-col" },
-            { header: "Max Devices", key: "devices_max" },
-            { header: "Storage", key: "storage" }
-        ],
-        fortiswitch: [
-            { header: "Series", key: "series" },
-            { header: "Example SKU", key: "example_sku", class: "sku-col" },
-            { header: "Price Range", key: "price_range", class: "price-col" },
-            { header: "Port Speed", key: "port_speed" },
-            { header: "Options", key: "options" }
-        ]
-    };
-
-    function switchTab(category) {
-        currentCategory = category;
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById('searchBox').value = ''; 
-        renderTable();
+    function toggleDetails(index) {
+        const row = document.getElementById(`details-${index}`);
+        const btn = document.getElementById(`btn-${index}`);
+        if (row.style.display === "table-row") {
+            row.style.display = "none";
+            btn.textContent = "View Options";
+            btn.style.background = "#c02f2f";
+        } else {
+            row.style.display = "table-row";
+            btn.textContent = "Close";
+            btn.style.background = "#555";
+        }
     }
 
-    function renderTable() {
-        const data = allData[currentCategory];
-        const cols = columns[currentCategory];
+    function renderTable(data) {
         const tbody = document.getElementById("tableBody");
-        const thead = document.getElementById("tableHead");
-        const query = document.getElementById("searchBox").value.toLowerCase();
-
-        // Render Header
-        thead.innerHTML = "<tr>" + cols.map(c => `<th>${c.header}</th>`).join("") + "</tr>";
-
-        // Render Body
         tbody.innerHTML = "";
-        data.forEach(item => {
-            const values = Object.values(item).join(" ").toLowerCase();
-            if (!values.includes(query)) return;
 
-            const row = cols.map(col => {
-                const val = item[col.key] || '-';
-                const cssClass = col.class ? `class="${col.class}"` : "";
-                return `<td ${cssClass}>${val}</td>`;
-            }).join("");
-            tbody.innerHTML += `<tr>${row}</tr>`;
+        data.forEach((item, index) => {
+            // Main Row
+            const mainRow = `
+                <tr class="main-row">
+                    <td><b>${item.model}</b></td>
+                    <td>${item.specs.form_factor}</td>
+                    <td>${item.specs.fw_throughput}</td>
+                    <td>${item.specs.interfaces}</td>
+                    <td><button id="btn-${index}" class="view-btn" onclick="toggleDetails(${index})">View Options</button></td>
+                </tr>
+            `;
+
+            // Expanded Details Row
+            let variantsHtml = item.variants && item.variants.length > 0 
+                ? item.variants.map(v => `<li class="detail-item"><span class="sku">${v.sku}</span><span class="desc">${v.description}</span></li>`).join("") 
+                : '<li class="detail-item" style="color:#999;">No variations found.</li>';
+
+            let bundlesHtml = item.bundles && item.bundles.length > 0
+                ? item.bundles.map(b => `<li class="detail-item"><span class="sku">${b.sku}</span><span class="desc">${b.description}</span></li>`).join("")
+                : '<li class="detail-item" style="color:#999;">No bundles listed.</li>';
+
+            const detailsRow = `
+                <tr id="details-${index}" class="details-row">
+                    <td colspan="5">
+                        <div class="details-container">
+                            <h4>Hardware Variations</h4>
+                            <ul class="detail-list">${variantsHtml}</ul>
+                            
+                            <br>
+                            <h4>Popular Bundles & Licenses</h4>
+                            <ul class="detail-list">${bundlesHtml}</ul>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            tbody.innerHTML += mainRow + detailsRow;
         });
     }
 
-    function filterTable() { renderTable(); }
+    function filterTable() {
+        const query = document.getElementById("searchBox").value.toLowerCase();
+        const filtered = allData.filter(item => {
+            // Search in main model data
+            if (item.model.toLowerCase().includes(query)) return true;
+            // Search in SKUs or Descriptions inside variants/bundles
+            if (item.variants.some(v => v.sku.toLowerCase().includes(query) || v.description.toLowerCase().includes(query))) return true;
+            if (item.bundles.some(b => b.sku.toLowerCase().includes(query) || b.description.toLowerCase().includes(query))) return true;
+            return false;
+        });
+        renderTable(filtered);
+    }
+
     loadData();
 </script>
 
