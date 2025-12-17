@@ -3,34 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fortinet Product Matrix</title>
+    <title>Fortinet Product & Pricing Explorer</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { color: #c02f2f; margin-bottom: 20px; }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #f4f6f8; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #c02f2f; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
         
-        /* Search & Tabs */
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; }
-        .tabs { display: flex; gap: 5px; }
-        button { padding: 10px 20px; border: none; background: #e9ecef; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        button.active { background: #c02f2f; color: white; }
-        
+        /* Controls */
+        .controls { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
+        .tabs { display: flex; gap: 8px; }
+        button.tab-btn { padding: 10px 24px; border: 1px solid #c02f2f; background: white; color: #c02f2f; cursor: pointer; border-radius: 4px; font-weight: 600; transition: all 0.2s; }
+        button.tab-btn.active, button.tab-btn:hover { background: #c02f2f; color: white; }
+        input { flex: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; min-width: 250px; }
+
         /* Table */
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
-        th { background-color: #343a40; color: white; white-space: nowrap; }
-        tr:hover { background-color: #f1f3f5; }
+        .table-wrapper { overflow-x: auto; border: 1px solid #eee; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th, td { padding: 14px 18px; text-align: left; border-bottom: 1px solid #dee2e6; vertical-align: middle; }
+        th { background-color: #2c3e50; color: white; font-weight: 600; white-space: nowrap; position: sticky; top: 0; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        tr:hover { background-color: #e9ecef; }
         
-        /* Responsive Tags */
-        .tag { display: inline-block; background: #e2e6ea; padding: 2px 8px; border-radius: 12px; font-size: 0.85em; margin-right: 5px; color: #495057; }
+        /* Specific Columns */
+        .price-col { color: #2e7d32; font-weight: bold; font-family: monospace; font-size: 1.1em; }
+        .sku-col { font-family: monospace; color: #555; background: #eee; padding: 4px 8px; border-radius: 4px; font-size: 0.9em; }
+        .desc-cell { font-size: 0.9em; color: #666; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+        .desc-cell:hover { white-space: normal; background: #fffbe6; position: relative; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Fortinet Product Explorer</h1>
+    <h1>Fortinet Explorer <span style="font-size:0.6em; color:#666; font-weight:normal;">(Specifications + Q4 2025 Pricing)</span></h1>
     
     <div class="controls">
         <div class="tabs">
@@ -38,7 +43,7 @@
             <button class="tab-btn" onclick="switchTab('fortimanager')">FortiManager</button>
             <button class="tab-btn" onclick="switchTab('fortiswitch')">FortiSwitch</button>
         </div>
-        <input type="text" id="searchBox" placeholder="Search models, speed, or interface..." onkeyup="filterTable()">
+        <input type="text" id="searchBox" placeholder="Type to filter (e.g., '100F', 'Desktop', '$500')..." onkeyup="filterTable()">
     </div>
 
     <div class="table-wrapper">
@@ -53,39 +58,39 @@
     let currentCategory = 'fortigate';
     let allData = {};
 
-    // Load Data
     async function loadData() {
         try {
-            // Fetch the JSON file (must be in same folder)
-            const response = await fetch('data.json');
+            const response = await fetch('data.json'); // Ensure data.json is in the same folder
             allData = await response.json();
             renderTable();
         } catch (error) {
             console.error("Error loading data:", error);
-            document.querySelector(".container").innerHTML += "<p style='color:red'>Error loading data.json. Make sure you are running this on a web server (or GitHub Pages).</p>";
+            document.getElementById("tableBody").innerHTML = "<tr><td colspan='6' style='color:red; text-align:center;'>Error loading data.json. Check console for details.</td></tr>";
         }
     }
 
-    // Define Columns for each category
     const columns = {
         fortigate: [
             { header: "Model", key: "model" },
-            { header: "Form Factor", key: "form_factor" },
-            { header: "FW Throughput", key: "fw_throughput" },
-            { header: "IPsec VPN", key: "ipsec_vpn" },
+            { header: "Hardware SKU", key: "sku", class: "sku-col" },
+            { header: "List Price", key: "price", class: "price-col" },
+            { header: "Description", key: "description", class: "desc-cell" },
+            { header: "Throughput", key: "fw_throughput" },
             { header: "Interfaces", key: "interfaces" }
         ],
         fortimanager: [
             { header: "Model", key: "model" },
+            { header: "SKU", key: "sku", class: "sku-col" },
+            { header: "Price", key: "price", class: "price-col" },
             { header: "Max Devices", key: "devices_max" },
-            { header: "Logs/Day", key: "logs_day" },
             { header: "Storage", key: "storage" }
         ],
         fortiswitch: [
             { header: "Series", key: "series" },
+            { header: "Example SKU", key: "example_sku", class: "sku-col" },
+            { header: "Price Range", key: "price_range", class: "price-col" },
             { header: "Port Speed", key: "port_speed" },
-            { header: "Uplink", key: "uplink" },
-            { header: "Port Options", key: "options" }
+            { header: "Options", key: "options" }
         ]
     };
 
@@ -110,20 +115,19 @@
         // Render Body
         tbody.innerHTML = "";
         data.forEach(item => {
-            // Search Filter
             const values = Object.values(item).join(" ").toLowerCase();
             if (!values.includes(query)) return;
 
-            const row = cols.map(col => `<td>${item[col.key] || '-'}</td>`).join("");
+            const row = cols.map(col => {
+                const val = item[col.key] || '-';
+                const cssClass = col.class ? `class="${col.class}"` : "";
+                return `<td ${cssClass}>${val}</td>`;
+            }).join("");
             tbody.innerHTML += `<tr>${row}</tr>`;
         });
     }
 
-    function filterTable() {
-        renderTable();
-    }
-
-    // Initialize
+    function filterTable() { renderTable(); }
     loadData();
 </script>
 
